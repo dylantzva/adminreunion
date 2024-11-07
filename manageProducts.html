@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Manage Products</title>
+    <style>
+        /* CSS */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #333;
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .dashboard {
+            background-color: #444;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px 0;
+            background-color: #555;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #777;
+        }
+
+        .product-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .product-card {
+            background-color: #222;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #555;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .modal-content img {
+            width: 100px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HTML Structure -->
+    <div class="dashboard">
+        <h2>Admin Dashboard</h2>
+        <button onclick="openModal()">Add Product</button>
+        <div id="product-list" class="product-list"></div>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>Add/Update Product</h3>
+            <input type="text" id="productName" placeholder="Product Name" required>
+            <input type="number" id="productStock" placeholder="Stock Quantity" required>
+            <input type="file" id="productImage" accept="image/*" onchange="displayImage(event)">
+            <img id="Shirt4" src="" alt="Product Image Preview">
+            <button onclick="saveProduct()">Save Product</button>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript
+        let products = [];
+
+        function openModal() {
+            document.getElementById('productModal').style.display = 'flex';
+            clearModal();
+        }
+
+      
+        function closeModal() {
+            document.getElementById('productModal').style.display = 'none';
+        }
+
+        function clearModal() {
+            document.getElementById('productName').value = '';
+            document.getElementById('productStock').value = '';
+            document.getElementById('productImage').value = '';
+            document.getElementById('previewImage').src = '';
+        }
+
+
+        function displayImage(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                document.getElementById('previewImage').src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        // Save a product
+        function saveProduct() {
+            const name = document.getElementById('productName').value;
+            const stock = parseInt(document.getElementById('productStock').value);
+            const image = document.getElementById('previewImage').src;
+
+            if (name && stock && image) {
+                const product = { id: Date.now(), name, stock, image };
+                products.push(product);
+                updateProductList();
+                closeModal();
+            } else {
+                alert('Please fill in all fields and add an image.');
+            }
+        }
+
+
+        function updateProductList() {
+            const productList = document.getElementById('product-list');
+            productList.innerHTML = '';
+
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.classList.add('product-card');
+
+                productCard.innerHTML = `
+                    <div>
+                        <img src="${product.image}" alt="${product.name}" style="width: 50px; border-radius: 8px;">
+                        <strong>${product.name}</strong>
+                        <p>Stock: ${product.stock}</p>
+                    </div>
+                    <button onclick="removeProduct(${product.id})">Remove</button>
+                `;
+
+                productList.appendChild(productCard);
+            });
+        }
+
+        // Remove a product
+        function removeProduct(id) {
+            products = products.filter(product => product.id !== id);
+            updateProductList();
+        }
+    </script>
+</body>
+</html>
